@@ -1,0 +1,340 @@
+\hypertarget{r__w__1_8c}{}\section{r\+\_\+w\+\_\+1.\+c File Reference}
+\label{r__w__1_8c}\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$stdint.\+h$>$}\newline
+{\ttfamily \#include $<$pthread.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$unistd.\+h$>$}\newline
+{\ttfamily \#include $<$string.\+h$>$}\newline
+{\ttfamily \#include $<$signal.\+h$>$}\newline
+\subsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{r__w__1_8c_a70b38cccdc01cdc71c3163298376e487}\label{r__w__1_8c_a70b38cccdc01cdc71c3163298376e487}} 
+\#define \hyperlink{r__w__1_8c_a70b38cccdc01cdc71c3163298376e487}{E\+R\+R\+O\+R\+\_\+\+A\+R\+G\+U\+M\+E\+N\+T\+S\+\_\+\+M\+E\+S\+S\+A\+GE}~\char`\"{}Usage\+: Reader\+And\+Writers1 number\+\_\+of\+\_\+writers number\+\_\+of\+\_\+readers \mbox{[}-\/t \hyperlink{r__w__2_8c_a53fa5968a2db3937171d558ed1832d09}{min\+\_\+reading\+\_\+time} \hyperlink{r__w__2_8c_a6e97eb80faf3a652299454ee1d24842e}{max\+\_\+reading\+\_\+time} \hyperlink{r__w__2_8c_ad0962cb2401c3443302728963f8d1332}{min\+\_\+writing\+\_\+time} \hyperlink{r__w__2_8c_a8989e5d89865ee28cc02b7ab7a6db770}{max\+\_\+writing\+\_\+time} \hyperlink{r__w__1_8c_a6b68b9286150780c11486ce19efe40c4}{min\+\_\+allow\+\_\+read\+\_\+time} \hyperlink{r__w__1_8c_a79dd63e1072a89c9c95bc2d7367f2b3d}{max\+\_\+allow\+\_\+read\+\_\+time}\mbox{]} \mbox{[}-\/debug\mbox{]}\textbackslash{}n\char`\"{}
+\begin{DoxyCompactList}\small\item\em Wrong arguments error message. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \hyperlink{r__w__1_8c_a388f572c62279f839ee138a9afbdeeb5}{print} ()
+\begin{DoxyCompactList}\small\item\em Prints library and queues state. There are two different of printing -\/ one standard and one for debug mode. \end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{r__w__1_8c_a4d833855ea97e137308265ce5be5a699}{reader} (void $\ast$arg)
+\begin{DoxyCompactList}\small\item\em Reader threat. It works in endless loop. Function checks is writer\+\_\+notification flag set -\/ if it\textquotesingle{}s not Reader enters library. If writer\+\_\+notification is set, thread is waiting for signal from conditional variable readers\+\_\+cond. \end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{r__w__1_8c_a69d04bbafaab83e75545082abf4e0d75}{writer} (void $\ast$arg)
+\begin{DoxyCompactList}\small\item\em Writer thread. It works in endless loop. Function waits for signal from conditional variable assigned to this thread (array $\ast$writers\+\_\+cond), then it waits till readers leave library and finally it enters library to write a book. When book is ready (writer left library) function sends signal to readers conditional variable (readers\+\_\+cond). \end{DoxyCompactList}\item 
+void $\ast$ \hyperlink{r__w__1_8c_a23b08160a5f4102e1c0f2f5d059733de}{librarian} ()
+\begin{DoxyCompactList}\small\item\em Librarian thread. It works in endless loop. Function sleeps for some random time (default 10-\/20 seconds, it can be changed by main function arguments) and then checks are writers in library. If there is no writers, function sets writer\+\_\+notification flag, then it looks for writer that waits for longest time and sends signal to conditional variable assigned to this writer id. Then it waits till writers leave library and starts all over again. \end{DoxyCompactList}\item 
+void \hyperlink{r__w__1_8c_a6a9960f1ab8215ec79ba90e17d643f51}{write\+\_\+book} (int writer\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Function symbolises entering library by a writer and writing a book. It sets enter library timestamp in array $\ast$writers\+\_\+in\+\_\+library (in writer\+\_\+id position). Then function resets corresponding timestamp in array $\ast$writers\+\_\+queue, increases writers\+\_\+in\+\_\+library\+\_\+count and decreases writers\+\_\+queue\+\_\+count. After that function sleeps for some random time (by default 5-\/15 seconds, it can be changed by main function arguments) and leaves library (sets timestamp in $\ast$writers\+\_\+queue, resets timestamp in $\ast$writers\+\_\+in\+\_\+library array, increases writers\+\_\+queue\+\_\+count and decreases writers\+\_\+in\+\_\+library\+\_\+count). \end{DoxyCompactList}\item 
+void \hyperlink{r__w__1_8c_ac01ba1e54436f3393be166e273c75da0}{read\+\_\+books} (int reader\+\_\+id)
+\begin{DoxyCompactList}\small\item\em Function symbolises entering library by a reader and reading books. It sets enter library timestamp in array $\ast$readers\+\_\+in\+\_\+library (in reader\+\_\+id position). Then function resets corresponding timestamp in array $\ast$readers\+\_\+queue, increases readers\+\_\+in\+\_\+library\+\_\+count and decreases readers\+\_\+queue\+\_\+count. After that function sleeps for some random time (by default 0-\/5 seconds, it can be changed by main function arguments) and leaves library (sets timestamp in $\ast$readers\+\_\+queue, resets timestamp in $\ast$readers\+\_\+in\+\_\+library array, increases readers\+\_\+queue\+\_\+count and decreases readers\+\_\+in\+\_\+library\+\_\+count). \end{DoxyCompactList}\item 
+int \hyperlink{r__w__1_8c_a8616aba74988737c06e44fd448c24516}{get\+\_\+random} (int min, int max)
+\begin{DoxyCompactList}\small\item\em Function gets random integer from min -\/ max range (inclusive). \end{DoxyCompactList}\item 
+time\+\_\+t \hyperlink{r__w__1_8c_a740f56e6426fb4eea5b3b0bd6877aac0}{get\+\_\+timestamp} ()
+\begin{DoxyCompactList}\small\item\em Function gets timestamp from system time. \end{DoxyCompactList}\item 
+void \hyperlink{r__w__1_8c_ae733fe874122894bac75e1be37326ceb}{init\+\_\+queue} ()
+\begin{DoxyCompactList}\small\item\em Function initialises writers\+\_\+queue and readers\+\_\+queue with actual timestamp. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a2a08004131aacb551995e4fcb0dfb678}\label{r__w__1_8c_a2a08004131aacb551995e4fcb0dfb678}} 
+void \hyperlink{r__w__1_8c_a2a08004131aacb551995e4fcb0dfb678}{signal\+\_\+handler} ()
+\begin{DoxyCompactList}\small\item\em Signal handler changes signal\+\_\+flag to 0. \end{DoxyCompactList}\item 
+void \hyperlink{r__w__1_8c_aa95569d904ce9054abea38d058dea4d4}{args\+\_\+interpreter} (int argc, char $\ast$$\ast$argv)
+\begin{DoxyCompactList}\small\item\em Arguments interpreter. Checks program arguments and sets global variables or exits program if arguments are incorrect. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a2f23e4bbd4e9ba1442c0e71e6644fc7b}\label{r__w__1_8c_a2f23e4bbd4e9ba1442c0e71e6644fc7b}} 
+void \hyperlink{r__w__1_8c_a2f23e4bbd4e9ba1442c0e71e6644fc7b}{variables\+\_\+initializer} ()
+\begin{DoxyCompactList}\small\item\em Allocates memory for global variables. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a0a003a1ea8ce7b8f5c058d66ed95c637}\label{r__w__1_8c_a0a003a1ea8ce7b8f5c058d66ed95c637}} 
+void \hyperlink{r__w__1_8c_a0a003a1ea8ce7b8f5c058d66ed95c637}{cleaner} ()
+\begin{DoxyCompactList}\small\item\em Frees memory allocated for global variables. \end{DoxyCompactList}\item 
+int \hyperlink{r__w__1_8c_a0ddf1224851353fc92bfbff6f499fa97}{main} (int argc, char $\ast$argv\mbox{[}$\,$\mbox{]})
+\begin{DoxyCompactList}\small\item\em Creates readers, writers and librarian threads. After that function works in endless loop and (in debug mode) prints library state every second. Loop can be stopped with S\+I\+G\+I\+NT signal (ctrl+c). In that case function cancels all threads and frees memory allocated for variables. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Variables}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{r__w__1_8c_a81993dd7538c53492c21d310f4cd8425}\label{r__w__1_8c_a81993dd7538c53492c21d310f4cd8425}} 
+volatile int \hyperlink{r__w__1_8c_a81993dd7538c53492c21d310f4cd8425}{signal\+\_\+flag} = 1
+\begin{DoxyCompactList}\small\item\em Loop in main function works until signal\+\_\+flag is set. When S\+I\+G\+I\+NT signal is received, flag is changed to 0 and loop stops. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a4acff8232e4aec9cd5c6dc200ac55ef3}\label{r__w__1_8c_a4acff8232e4aec9cd5c6dc200ac55ef3}} 
+pthread\+\_\+mutex\+\_\+t \hyperlink{r__w__1_8c_a4acff8232e4aec9cd5c6dc200ac55ef3}{mutex}
+\begin{DoxyCompactList}\small\item\em Just a mutex. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_aabd2800afd76f0a380085d7bb5525b15}\label{r__w__1_8c_aabd2800afd76f0a380085d7bb5525b15}} 
+pthread\+\_\+cond\+\_\+t \hyperlink{r__w__1_8c_aabd2800afd76f0a380085d7bb5525b15}{readers\+\_\+cond}
+\begin{DoxyCompactList}\small\item\em Conditional variable to handle readers. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_aaa81a9afe3f27e9e9a415d4c9eb5fbd3}\label{r__w__1_8c_aaa81a9afe3f27e9e9a415d4c9eb5fbd3}} 
+pthread\+\_\+cond\+\_\+t $\ast$ \hyperlink{r__w__1_8c_aaa81a9afe3f27e9e9a415d4c9eb5fbd3}{writers\+\_\+conds}
+\begin{DoxyCompactList}\small\item\em Array of conditional variables to handle writers. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a5823680a1d455be931e97d6fbf0be228}\label{r__w__1_8c_a5823680a1d455be931e97d6fbf0be228}} 
+int \hyperlink{r__w__1_8c_a5823680a1d455be931e97d6fbf0be228}{is\+\_\+debug\+\_\+run} = 0
+\begin{DoxyCompactList}\small\item\em Flag marking debug mode. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_afd6c40de3c12fd6c40c3b32883e5605f}\label{r__w__1_8c_afd6c40de3c12fd6c40c3b32883e5605f}} 
+int \hyperlink{r__w__1_8c_afd6c40de3c12fd6c40c3b32883e5605f}{readers\+\_\+count}
+\begin{DoxyCompactList}\small\item\em Number of readers. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a7239cd77eaa159d097857f3411525423}\label{r__w__1_8c_a7239cd77eaa159d097857f3411525423}} 
+int \hyperlink{r__w__1_8c_a7239cd77eaa159d097857f3411525423}{writers\+\_\+count}
+\begin{DoxyCompactList}\small\item\em Number of writers. \end{DoxyCompactList}\item 
+time\+\_\+t $\ast$ \hyperlink{r__w__1_8c_a667f25eb8becc0da900a1faab71f83ee}{writers\+\_\+in\+\_\+library}
+\begin{DoxyCompactList}\small\item\em Array of timestamps to set when writer enters library. Set to 0 if writer is not in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a4a4456cdca2d3d047b1bdfc6b67ff28b}\label{r__w__1_8c_a4a4456cdca2d3d047b1bdfc6b67ff28b}} 
+int \hyperlink{r__w__1_8c_a4a4456cdca2d3d047b1bdfc6b67ff28b}{writers\+\_\+in\+\_\+library\+\_\+count} = 0
+\begin{DoxyCompactList}\small\item\em Number of writers currently in library. \end{DoxyCompactList}\item 
+time\+\_\+t $\ast$ \hyperlink{r__w__1_8c_a4547fe6a47b05a845b5e4f1144b2f37b}{readers\+\_\+in\+\_\+library}
+\begin{DoxyCompactList}\small\item\em Array of timestamps to set when reader enters library. Set to 0 if reader is not in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_ab8267f3afffe8d7cdc3c7a4f335b22c0}\label{r__w__1_8c_ab8267f3afffe8d7cdc3c7a4f335b22c0}} 
+int \hyperlink{r__w__1_8c_ab8267f3afffe8d7cdc3c7a4f335b22c0}{readers\+\_\+in\+\_\+library\+\_\+count} = 0
+\begin{DoxyCompactList}\small\item\em Number of readers currently in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a278abf2c90a5b1e99c603659ba542703}\label{r__w__1_8c_a278abf2c90a5b1e99c603659ba542703}} 
+time\+\_\+t $\ast$ \hyperlink{r__w__1_8c_a278abf2c90a5b1e99c603659ba542703}{writers\+\_\+queue}
+\begin{DoxyCompactList}\small\item\em Array of timestamps to set when writer starts waiting to enter library. Set to 0 if writer is not in queue. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_ad88c4469ef297c8cbcf52664fdde3872}\label{r__w__1_8c_ad88c4469ef297c8cbcf52664fdde3872}} 
+int \hyperlink{r__w__1_8c_ad88c4469ef297c8cbcf52664fdde3872}{writers\+\_\+queue\+\_\+count}
+\begin{DoxyCompactList}\small\item\em Number of writers in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a1d6354d50c4f30bd1a96f64439eaba5c}\label{r__w__1_8c_a1d6354d50c4f30bd1a96f64439eaba5c}} 
+time\+\_\+t $\ast$ \hyperlink{r__w__1_8c_a1d6354d50c4f30bd1a96f64439eaba5c}{readers\+\_\+queue}
+\begin{DoxyCompactList}\small\item\em Array of timestamps to set when reader starts waiting to enter library. Set to 0 if reader is not in queue. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a49c1af2aa5abe5ccfe997927ba308aac}\label{r__w__1_8c_a49c1af2aa5abe5ccfe997927ba308aac}} 
+int \hyperlink{r__w__1_8c_a49c1af2aa5abe5ccfe997927ba308aac}{readers\+\_\+queue\+\_\+count}
+\begin{DoxyCompactList}\small\item\em Number of readers in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_acd4969ebcd918cc7e02c616a3654e1cd}\label{r__w__1_8c_acd4969ebcd918cc7e02c616a3654e1cd}} 
+int \hyperlink{r__w__1_8c_acd4969ebcd918cc7e02c616a3654e1cd}{writer\+\_\+notification} = 0
+\begin{DoxyCompactList}\small\item\em Notifies that some writer is in library or is going to be let to the library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a53fa5968a2db3937171d558ed1832d09}\label{r__w__1_8c_a53fa5968a2db3937171d558ed1832d09}} 
+int \hyperlink{r__w__1_8c_a53fa5968a2db3937171d558ed1832d09}{min\+\_\+reading\+\_\+time} = 0
+\begin{DoxyCompactList}\small\item\em Minimum time that reader spends in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a6e97eb80faf3a652299454ee1d24842e}\label{r__w__1_8c_a6e97eb80faf3a652299454ee1d24842e}} 
+int \hyperlink{r__w__1_8c_a6e97eb80faf3a652299454ee1d24842e}{max\+\_\+reading\+\_\+time} = 5
+\begin{DoxyCompactList}\small\item\em Maximum time that reader spends in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_ad0962cb2401c3443302728963f8d1332}\label{r__w__1_8c_ad0962cb2401c3443302728963f8d1332}} 
+int \hyperlink{r__w__1_8c_ad0962cb2401c3443302728963f8d1332}{min\+\_\+writing\+\_\+time} = 5
+\begin{DoxyCompactList}\small\item\em Minimum time that writer spends in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a8989e5d89865ee28cc02b7ab7a6db770}\label{r__w__1_8c_a8989e5d89865ee28cc02b7ab7a6db770}} 
+int \hyperlink{r__w__1_8c_a8989e5d89865ee28cc02b7ab7a6db770}{max\+\_\+writing\+\_\+time} = 15
+\begin{DoxyCompactList}\small\item\em Maximum time that writer spends in library. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a6b68b9286150780c11486ce19efe40c4}\label{r__w__1_8c_a6b68b9286150780c11486ce19efe40c4}} 
+int \hyperlink{r__w__1_8c_a6b68b9286150780c11486ce19efe40c4}{min\+\_\+allow\+\_\+read\+\_\+time} = 10
+\begin{DoxyCompactList}\small\item\em Minimum time that librarian lets readers to read before he stops letting them in. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{r__w__1_8c_a79dd63e1072a89c9c95bc2d7367f2b3d}\label{r__w__1_8c_a79dd63e1072a89c9c95bc2d7367f2b3d}} 
+int \hyperlink{r__w__1_8c_a79dd63e1072a89c9c95bc2d7367f2b3d}{max\+\_\+allow\+\_\+read\+\_\+time} = 20
+\begin{DoxyCompactList}\small\item\em Maximum time that librarian lets readers to read before he stops letting them in. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Readers and Writers -\/ implementation 1
+
+Implementation with no starvation of writers or readers. It uses conditional variables -\/ one for readers and one for each writer. In this implementation there is an additional thread -\/ librarian. It waits for some (default random) time allowing readers to use library. When time ends -\/ it stops letting readers to enter library. When library is empty -\/ librarian looks for writer with maximum waiting time and lets him in.
+
+\begin{DoxyAuthor}{Author}
+Mateusz Wawreszuk 
+\end{DoxyAuthor}
+
+
+\subsection{Function Documentation}
+\mbox{\Hypertarget{r__w__1_8c_aa95569d904ce9054abea38d058dea4d4}\label{r__w__1_8c_aa95569d904ce9054abea38d058dea4d4}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!args\+\_\+interpreter@{args\+\_\+interpreter}}
+\index{args\+\_\+interpreter@{args\+\_\+interpreter}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{args\+\_\+interpreter()}{args\_interpreter()}}
+{\footnotesize\ttfamily void args\+\_\+interpreter (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$$\ast$}]{argv }\end{DoxyParamCaption})}
+
+
+
+Arguments interpreter. Checks program arguments and sets global variables or exits program if arguments are incorrect. 
+
+
+\begin{DoxyEnumerate}
+\item Reads two first arguments -\/ writers and readers count and sets it to global variables.
+\item (optional) Checks next arguments and enters debug mode or sets up times.
+\end{DoxyEnumerate}
+
+
+\begin{DoxyParams}{Parameters}
+{\em argc} & Arguments count \\
+\hline
+{\em argv} & Array of arguments \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{r__w__1_8c_a8616aba74988737c06e44fd448c24516}\label{r__w__1_8c_a8616aba74988737c06e44fd448c24516}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!get\+\_\+random@{get\+\_\+random}}
+\index{get\+\_\+random@{get\+\_\+random}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{get\+\_\+random()}{get\_random()}}
+{\footnotesize\ttfamily int get\+\_\+random (\begin{DoxyParamCaption}\item[{int}]{min,  }\item[{int}]{max }\end{DoxyParamCaption})}
+
+
+
+Function gets random integer from min -\/ max range (inclusive). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em min} & Minimum number that can be generated. \\
+\hline
+{\em max} & Maximum number that can be generated. \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Random integer 
+\end{DoxyReturn}
+\mbox{\Hypertarget{r__w__1_8c_a740f56e6426fb4eea5b3b0bd6877aac0}\label{r__w__1_8c_a740f56e6426fb4eea5b3b0bd6877aac0}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!get\+\_\+timestamp@{get\+\_\+timestamp}}
+\index{get\+\_\+timestamp@{get\+\_\+timestamp}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{get\+\_\+timestamp()}{get\_timestamp()}}
+{\footnotesize\ttfamily time\+\_\+t get\+\_\+timestamp (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Function gets timestamp from system time. 
+
+\begin{DoxyReturn}{Returns}
+Timestamp 
+\end{DoxyReturn}
+\mbox{\Hypertarget{r__w__1_8c_ae733fe874122894bac75e1be37326ceb}\label{r__w__1_8c_ae733fe874122894bac75e1be37326ceb}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!init\+\_\+queue@{init\+\_\+queue}}
+\index{init\+\_\+queue@{init\+\_\+queue}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{init\+\_\+queue()}{init\_queue()}}
+{\footnotesize\ttfamily void init\+\_\+queue (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Function initialises writers\+\_\+queue and readers\+\_\+queue with actual timestamp. 
+
+Function initialises $\ast$queue and $\ast$in\+\_\+library arrays. \mbox{\Hypertarget{r__w__1_8c_a23b08160a5f4102e1c0f2f5d059733de}\label{r__w__1_8c_a23b08160a5f4102e1c0f2f5d059733de}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!librarian@{librarian}}
+\index{librarian@{librarian}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{librarian()}{librarian()}}
+{\footnotesize\ttfamily void $\ast$ librarian (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Librarian thread. It works in endless loop. Function sleeps for some random time (default 10-\/20 seconds, it can be changed by main function arguments) and then checks are writers in library. If there is no writers, function sets writer\+\_\+notification flag, then it looks for writer that waits for longest time and sends signal to conditional variable assigned to this writer id. Then it waits till writers leave library and starts all over again. 
+
+Librarians thread. It checks every second who is at first position at queue -\/ if it\textquotesingle{}s reader, librarian waits till there is no writer in library (if there was any). Then it sends signal to reader that he can come in. If there is a writer at first position in queue -\/ librarian waits till everyone leaves library and then sends signal to the writer. \mbox{\Hypertarget{r__w__1_8c_a0ddf1224851353fc92bfbff6f499fa97}\label{r__w__1_8c_a0ddf1224851353fc92bfbff6f499fa97}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!main@{main}}
+\index{main@{main}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily int main (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char $\ast$}]{argv\mbox{[}$\,$\mbox{]} }\end{DoxyParamCaption})}
+
+
+
+Creates readers, writers and librarian threads. After that function works in endless loop and (in debug mode) prints library state every second. Loop can be stopped with S\+I\+G\+I\+NT signal (ctrl+c). In that case function cancels all threads and frees memory allocated for variables. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em argc} & arguments count \\
+\hline
+{\em argv} & arguments array \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+0 (no error code) 
+\end{DoxyReturn}
+\mbox{\Hypertarget{r__w__1_8c_a388f572c62279f839ee138a9afbdeeb5}\label{r__w__1_8c_a388f572c62279f839ee138a9afbdeeb5}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!print@{print}}
+\index{print@{print}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{print()}{print()}}
+{\footnotesize\ttfamily void print (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+
+
+Prints library and queues state. There are two different of printing -\/ one standard and one for debug mode. 
+
+In standard mode function prints message in format\+: ReaderQ\+: readers\+\_\+in\+\_\+queue WriterQ\+: writers\+\_\+in\+\_\+queue \mbox{[} in\+: R\+:readers\+\_\+in\+\_\+library W\+:writers\+\_\+in\+\_\+library \mbox{]}
+
+In debug mode function prints all threads with theirs numbers -\/ grouped to readers queue, writers queue and library. Format\+: Readers queue (seconds in queue)\+: Reader reader\+\_\+number (seconds\+\_\+in\+\_\+queue) (...)
+
+Writers queue (seconds in queue)\+: Writer writer\+\_\+number (seconds\+\_\+in\+\_\+queue) (...)
+
+In library (seconds in library)\+: Writer writer\+\_\+number (seconds\+\_\+in\+\_\+queue) or Reader reader\+\_\+number (seconds\+\_\+in\+\_\+queue) (...)
+
+In standard mode function prints message in format\+: ReaderQ\+: readers\+\_\+in\+\_\+queue WriterQ\+: writers\+\_\+in\+\_\+queue \mbox{[} in\+: R\+:readers\+\_\+in\+\_\+library W\+:writers\+\_\+in\+\_\+library \mbox{]}
+
+In debug mode function prints all threads with theirs numbers -\/ grouped to queue and library. Format\+: Queue (seconds in queue)\+: Reader reader\+\_\+number (seconds\+\_\+in\+\_\+queue) or Writer writer\+\_\+number (seconds\+\_\+in\+\_\+queue) (...)
+
+In library (seconds in library)\+: Writer writer\+\_\+number (seconds\+\_\+in\+\_\+queue) or Reader reader\+\_\+number (seconds\+\_\+in\+\_\+queue) (...) \mbox{\Hypertarget{r__w__1_8c_ac01ba1e54436f3393be166e273c75da0}\label{r__w__1_8c_ac01ba1e54436f3393be166e273c75da0}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!read\+\_\+books@{read\+\_\+books}}
+\index{read\+\_\+books@{read\+\_\+books}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{read\+\_\+books()}{read\_books()}}
+{\footnotesize\ttfamily void read\+\_\+books (\begin{DoxyParamCaption}\item[{int}]{reader\+\_\+id }\end{DoxyParamCaption})}
+
+
+
+Function symbolises entering library by a reader and reading books. It sets enter library timestamp in array $\ast$readers\+\_\+in\+\_\+library (in reader\+\_\+id position). Then function resets corresponding timestamp in array $\ast$readers\+\_\+queue, increases readers\+\_\+in\+\_\+library\+\_\+count and decreases readers\+\_\+queue\+\_\+count. After that function sleeps for some random time (by default 0-\/5 seconds, it can be changed by main function arguments) and leaves library (sets timestamp in $\ast$readers\+\_\+queue, resets timestamp in $\ast$readers\+\_\+in\+\_\+library array, increases readers\+\_\+queue\+\_\+count and decreases readers\+\_\+in\+\_\+library\+\_\+count). 
+
+Function symbolises entering library by a reader and reading books. It takes off first thread from queue and puts reader to $\ast$in\+\_\+library array. After that function sleeps for some random time (by default 0-\/5 seconds, it can be changed by main function arguments) and leaves library (removes itself from $\ast$in\+\_\+library array and gets back to queue).
+
+
+\begin{DoxyParams}{Parameters}
+{\em reader\+\_\+id} & Reader thread id \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{r__w__1_8c_a4d833855ea97e137308265ce5be5a699}\label{r__w__1_8c_a4d833855ea97e137308265ce5be5a699}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!reader@{reader}}
+\index{reader@{reader}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{reader()}{reader()}}
+{\footnotesize\ttfamily void $\ast$ reader (\begin{DoxyParamCaption}\item[{void $\ast$}]{arg }\end{DoxyParamCaption})}
+
+
+
+Reader threat. It works in endless loop. Function checks is writer\+\_\+notification flag set -\/ if it\textquotesingle{}s not Reader enters library. If writer\+\_\+notification is set, thread is waiting for signal from conditional variable readers\+\_\+cond. 
+
+Readers thread. It works in endless loop. It waits for signal from its conditional variable and then enters library.
+
+
+\begin{DoxyParams}{Parameters}
+{\em arg} & Reader id \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{r__w__1_8c_a6a9960f1ab8215ec79ba90e17d643f51}\label{r__w__1_8c_a6a9960f1ab8215ec79ba90e17d643f51}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!write\+\_\+book@{write\+\_\+book}}
+\index{write\+\_\+book@{write\+\_\+book}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{write\+\_\+book()}{write\_book()}}
+{\footnotesize\ttfamily void write\+\_\+book (\begin{DoxyParamCaption}\item[{int}]{writer\+\_\+id }\end{DoxyParamCaption})}
+
+
+
+Function symbolises entering library by a writer and writing a book. It sets enter library timestamp in array $\ast$writers\+\_\+in\+\_\+library (in writer\+\_\+id position). Then function resets corresponding timestamp in array $\ast$writers\+\_\+queue, increases writers\+\_\+in\+\_\+library\+\_\+count and decreases writers\+\_\+queue\+\_\+count. After that function sleeps for some random time (by default 5-\/15 seconds, it can be changed by main function arguments) and leaves library (sets timestamp in $\ast$writers\+\_\+queue, resets timestamp in $\ast$writers\+\_\+in\+\_\+library array, increases writers\+\_\+queue\+\_\+count and decreases writers\+\_\+in\+\_\+library\+\_\+count). 
+
+Function symbolises entering library by a writer and writing a book. It takes off first thread from queue and puts writer to $\ast$in\+\_\+library array. After that function sleeps for some random time (by default 5-\/15 seconds, it can be changed by main function arguments) and leaves library (removes itself from $\ast$in\+\_\+library array and gets back to queue).
+
+
+\begin{DoxyParams}{Parameters}
+{\em writer\+\_\+id} & Writer thread id \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{r__w__1_8c_a69d04bbafaab83e75545082abf4e0d75}\label{r__w__1_8c_a69d04bbafaab83e75545082abf4e0d75}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!writer@{writer}}
+\index{writer@{writer}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{writer()}{writer()}}
+{\footnotesize\ttfamily void $\ast$ writer (\begin{DoxyParamCaption}\item[{void $\ast$}]{arg }\end{DoxyParamCaption})}
+
+
+
+Writer thread. It works in endless loop. Function waits for signal from conditional variable assigned to this thread (array $\ast$writers\+\_\+cond), then it waits till readers leave library and finally it enters library to write a book. When book is ready (writer left library) function sends signal to readers conditional variable (readers\+\_\+cond). 
+
+Writers thread. It works in endless loop. It waits for signal from its conditional variable and then enters library.
+
+
+\begin{DoxyParams}{Parameters}
+{\em arg} & Writer id \\
+\hline
+\end{DoxyParams}
+
+
+\subsection{Variable Documentation}
+\mbox{\Hypertarget{r__w__1_8c_a4547fe6a47b05a845b5e4f1144b2f37b}\label{r__w__1_8c_a4547fe6a47b05a845b5e4f1144b2f37b}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!readers\+\_\+in\+\_\+library@{readers\+\_\+in\+\_\+library}}
+\index{readers\+\_\+in\+\_\+library@{readers\+\_\+in\+\_\+library}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{readers\+\_\+in\+\_\+library}{readers\_in\_library}}
+{\footnotesize\ttfamily time\+\_\+t$\ast$ readers\+\_\+in\+\_\+library}
+
+
+
+Array of timestamps to set when reader enters library. Set to 0 if reader is not in library. 
+
+Position in array is an identifier of reader. \mbox{\Hypertarget{r__w__1_8c_a667f25eb8becc0da900a1faab71f83ee}\label{r__w__1_8c_a667f25eb8becc0da900a1faab71f83ee}} 
+\index{r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}!writers\+\_\+in\+\_\+library@{writers\+\_\+in\+\_\+library}}
+\index{writers\+\_\+in\+\_\+library@{writers\+\_\+in\+\_\+library}!r\+\_\+w\+\_\+1.\+c@{r\+\_\+w\+\_\+1.\+c}}
+\subsubsection{\texorpdfstring{writers\+\_\+in\+\_\+library}{writers\_in\_library}}
+{\footnotesize\ttfamily time\+\_\+t$\ast$ writers\+\_\+in\+\_\+library}
+
+
+
+Array of timestamps to set when writer enters library. Set to 0 if writer is not in library. 
+
+Position in array is an identifier of writer. 

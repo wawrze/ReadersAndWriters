@@ -1,0 +1,77 @@
+<html>
+<body>
+<table>
+	<tr>
+		<td style="font-weight: bold;">Autor</td>
+		<td  style="font-weight: bold;">:</td>
+		<td>Mateusz Wawreszuk</td>
+	</tr>
+	<tr>
+		<td style="font-weight: bold;">Projekt</td>
+		<td  style="font-weight: bold;">:</td>
+		<td>2. Czytelnicy i pisarze (Readers and Writers)</td>
+	</tr>
+	<tr>
+		<td style="font-weight: bold;" valign="top">Zawartość</td>
+		<td  style="font-weight: bold;" valign="top">:</td>
+		<td><br>
+				Z czytelni korzysta na okrągło pewna ilość czytelników i pisarzy (dwa typy wątków), przy czym jednocześnie może w niej znajdować się albo dowolna ilość czytelników, albo jeden pisarz, albo nikt - nigdy inaczej. Problem ten ma trzy rozwiązania - z możliwością zagłodzenia pisarzy, z możliwością zagłodzenia czytelników oraz wykluczające zagłodzenie.<br><br>
+
+                W skład projektu wchodzą dwa programy symulujące dwa różne rozwiązania tego problemu, oba korzystają ze zmiennych warunkowych (condition variable). Różnice w ich implementacji opisano w dalszej części strony.<br><br>
+
+				Ilość wątków pisarzy R i czytelników W można przekazać jako argumenty linii poleceń. Zarówno czytelnicy jak i pisarze wkrótce po opuszczeniu czytelni próbują znów się do niej dostać (wątki działają dalej). Program wypisuje komunikaty według poniższego przykładu:<br><br>
+				ReaderQ: 11 WriterQ: 10 [in: R:0 W:1]<br><br>
+				Oznacza to, że w kolejce przed czytelnią czeka 10 pisarzy i 11 czytelników a sama czytelnia zajęta jest przez jednego pisarza. Komunikat jest wypisywany w momencie zmiany którejkolwiek z tych wartości. Dodatkowo po uruchomieniu programu z parametrem -debug są wypisywane całe kolejki czytelników i pisarzy, a także lista osób przebywających w czytelni. Odbywa się to według poniższego przykładu:<br><br>
+				Readers queue (seconds in queue):<br>
+				Reader 0	(8)<br>
+				Reader 1	(8)<br>
+				Reader 2	(9)<br>
+				Reader 3	(10)<br>
+				<br>
+				Writers queue (seconds in queue):<br>
+				Writer 0	(82)<br>
+				Writer 1	(63)<br>
+				Writer 2	(45)<br>
+				Writer 3	(21)<br>
+				<br>
+				In library (seconds in library):<br>
+				Writer 4	(8)<br><br>
+				Oznacza to, że przed czytelnią czeka 4 czytelników (Reader 0, Reader 1, Reader 2 i Reader 3) i 4 pisarzy (Writer 0, Writer 1, Writer 2, Writer 3), w nawiasie przy każdym z nich jest podany czas oczekiwania w sekundach. Sama czytelnia jest zajęta przez jednego pisarza (Writer 4), które znajduje się tam od 8 sekund.<br><br>
+
+				Dodatkowo do programów dodano możliwość przekazywania jako argumenty programu czasów przez jaki pisarze i czytelnicy przebywają w czytelni (czasy minimalne i maksymalne - pobyt w czytelni jest losową wartością z tych zakresów losowaną przy każdym wejściu do czytelni). Kompletna składnia uruchamiania programów to:<br><br>
+				ReaderAndWriters1 liczba_pisarzy liczba_czytelników [-t min_czas_czyt max_czas_czyt min_czas_pis max_czas_pis min_czas_pozw_na_czyt max_czas_pozw_na_czyt] [-debug]<br><br>
+				ReaderAndWriters2 liczba_pisarzy liczba_czytelników [-t min_czas_czyt max_czas_czyt min_czas_pis max_czas_pis] [-debug]<br><br>
+				<b>Zakończenie programu</b><br>
+				Po wysłaniu sygnału SIGINT wszystkie wątki są anulowane, a pamięć zwalniana. Następuje prawidłowe zakończenie pracy programu.<br><br>
+
+				<b>Implementacja 1 (ReadersAndWriters1)</b><br>
+				W tej implementacji wprowadzono dodatkowy wątek bibliotekarza. Pozwala korzystać czytelnikom z biblioteki przez losowy czas (domyślnie 10-20 sekund, ale można go zmienić przekazując odpowiednie argumenty do programu). Po upływie tego czasu przestaje wpuszczać kolejnych czytelników do biblioteki, a kiedy wszyscy ją opuszczą, wyszukuje pisarza, który czeka najdłużej i wysyła sygnał do zmiennej warunkowej przypisanej do tego pisarza. Następnie czeka aż pisarz opuści bibliotekę i zaczyna proces od nowa. To czy czytelnicy mogą wejść do bibliotaki jest oznaczane flagą writer_notification - czytelnicy wchodzą do biblioteki dopiero kiedy flaga ta jest wyzerowana.
+				<br><br>
+				<b>Implementacja 2 (ReadersAndWriters2)</b><br>
+				W tej implementacji czytelnicy i pisarze mają jedną wspólną kolejkę typu FIFO - po opuszczeniu kolejki przez wątek (zawsze z indeksu 0), wszystkie kolejne są przepisywane o jeden indeks niżej, a w miejscu zajmowanym dotychczas przez ostatni wątek jest zapisywana obecność NO_KIND, symbolizująca puste miejsce. Każdemu czytelnikowi i pisarzowi przypisano oddzielną zmienną warunkową. Podobnie jak w pierwszej implementacji, tutaj również został wprowadzony wątek bibliotekarza, ale ma inne działanie. Bibliotekarz co 1 sekundę sprawdza jaki typ wątku jest pierwszy w kolejce i kto obecnie przebywa w bibliotece:
+				<ul>
+					<li>Jeśli na pierwszym miejscu w kolejce jest czytelnik, a w bibliotece są inni czytelnicy - wysyła sygnał do zmiennej warunkowej przypisanej do tego wątku.</li>
+					<li>Jeśli na pierwszym miejscu w kolejce jest czytelnik, a w bibliotece jest pisarz - bibliotekarz czeka na opuszczenie biblioteki przez pisarza i dopiero wtedy wysyła sygnał czytelnikowi.</li>
+					<li>Jeśli na pierwszym miejscu w kolejce jest pisarz, bibliotekarz czeka na opuszczenie biblioteki przez wszystkie wątki, po czym wysyła sygnał do zmiennej warunkowej przypisanej do pisarza.</li>
+				</ul>
+				W przypadku uruchomienia programu z opcją -debug, zamiast oddzielnych kolejek pisarzy i czytelników, wyświetlana jest jedna kolejka (wątek na górze kolejki to ten, który pierwszy ją opuści).
+			<br><br>
+				<b>Kompilacja</b><br>
+				Oba programy kompiluje się za pomocą narzędzia make:
+				<ul>
+					<li><b>make ReadersAndWriters1</b> - kompilacja pierwszej implementacji, tworzy plik wykonywalny ReadersAndWriters1</li>
+					<li><b>make ReadersAndWriters2</b> - kompilacja drugiej implementacji, tworzy plik wykonywalny ReadersAndWriters2</li>
+					<li><b>make</b> - kompilacja obu implementacji, tworzy pliki wykonywalne ReadersAndWriters1 oraz ReadersAndWriters2</li>
+					<li>Dodatkowe polecenie <b>make clean</b> - usuwa wszystkie pliki stworzone przy kompilacji</li>
+				</ul><br><br>
+		</td>
+				
+	</tr>
+	<tr>
+		<td style="font-weight: bold;">Podsumowanie</td>
+		<td  style="font-weight: bold;">:</td>
+		<td>Wykonano ćwiczenie wraz ze wszystkimi dodatkowymi wytycznymi. Oczekiwana punktacja: <b>25 pkt</b></td>
+	</tr>
+</table>
+</body>
+</html>
